@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MediShop — Pharmacy Billing System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a',700:'#15803d',900:'#14532d' },
+            slate: { 850:'#1a2332' }
+          },
+          fontFamily: { sans: ['DM Sans','sans-serif'], display: ['Space Grotesk','sans-serif'] }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #0f172a; color: #e2e8f0; font-family: 'DM Sans', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .sidebar-link { transition: all 0.2s; }
+    .sidebar-link:hover, .sidebar-link.active { background: #16a34a22; color: #22c55e; border-left: 3px solid #22c55e; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+    .input-field { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 8px; padding: 8px 12px; width: 100%; outline: none; transition: border 0.2s; }
+    .input-field:focus { border-color: #22c55e; }
+    .btn-primary { background: #16a34a; color: white; border-radius: 8px; padding: 9px 20px; font-weight: 600; cursor: pointer; transition: background 0.2s; border: none; }
+    .btn-primary:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; color: white; border-radius: 8px; padding: 7px 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; border: none; }
+    .btn-danger:hover { background: #b91c1c; }
+    .btn-secondary { background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 8px; padding: 7px 14px; cursor: pointer; transition: all 0.2s; }
+    .btn-secondary:hover { border-color: #22c55e; color: #22c55e; }
+    .tab-btn { padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+    .tab-btn.active { background: #16a34a; color: white; }
+    .tab-btn:not(.active) { color: #94a3b8; }
+    .tab-btn:not(.active):hover { color: #e2e8f0; }
+    .page { display: none; } .page.active { display: block; }
+    .badge { padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .badge-green { background: #16a34a22; color: #22c55e; border: 1px solid #22c55e44; }
+    .badge-red { background: #dc262622; color: #f87171; border: 1px solid #dc262644; }
+    .badge-yellow { background: #ca8a0422; color: #facc15; border: 1px solid #ca8a0444; }
+    .modal-overlay { position: fixed; inset: 0; background: #00000088; z-index: 50; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #1e293b; border: 1px solid #334155; border-radius: 16px; padding: 28px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    tr:hover td { background: #1a2332; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeIn 0.3s ease; }
+    .print-area { display: none; }
+    @media print {
+      body * { display: none; }
+      .print-area, .print-area * { display: block; }
+      .print-area { position: fixed; top: 0; left: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- SIDEBAR -->
+<aside class="w-64 flex flex-col bg-slate-900 border-r border-slate-700 shrink-0">
+  <div class="p-5 border-b border-slate-700">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-green-600 flex items-center justify-center">
+        <i class="fa fa-pills text-white text-sm"></i>
+      </div>
+      <div>
+        <p class="font-display font-700 text-white text-base leading-tight">MediShop</p>
+        <p class="text-xs text-slate-400">Pharmacy Billing</p>
+      </div>
+    </div>
+  </div>
+  <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
+    <a class="sidebar-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer" onclick="showPage('dashboard')">
+      <i class="fa fa-chart-pie w-4 text-center"></i> Dashboard
+    </a>
+    <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer" onclick="showPage('billing')">
+      <i class="fa fa-file-invoice-dollar w-4 text-center"></i> New Bill
+    </a>
+    <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer" onclick="showPage('products')">
+      <i class="fa fa-box w-4 text-center"></i> Products
+    </a>
+    <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer" onclick="showPage('bills')">
+      <i class="fa fa-receipt w-4 text-center"></i> Bill History
+    </a>
+    <a class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer" onclick="showPage('stock')">
+      <i class="fa fa-warehouse w-4 text-center"></i> Stock Check
+    </a>
+  </nav>
+  <div class="p-4 border-t border-slate-700 text-xs text-slate-500 text-center">
+    v1.0 &bull; MediShop &copy; 2025
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="flex-1 flex flex-col overflow-hidden">
+  <!-- Top bar -->
+  <header class="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between shrink-0">
+    <div id="page-title" class="font-display font-bold text-lg text-white">Dashboard</div>
+    <div class="flex items-center gap-3">
+      <div class="text-sm text-slate-400" id="clock"></div>
+      <div class="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-sm font-bold">A</div>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto p-6">
+
+    <!-- ─── DASHBOARD ─── -->
+    <div id="page-dashboard" class="page active animate-in">
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center"><i class="fa fa-box text-blue-400 text-xl"></i></div>
+          <div><p class="text-slate-400 text-xs mb-1">Total Products</p><p class="text-2xl font-bold text-white" id="stat-products">—</p></div>
+        </div>
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-red-600/20 flex items-center justify-center"><i class="fa fa-triangle-exclamation text-red-400 text-xl"></i></div>
+          <div><p class="text-slate-400 text-xs mb-1">Low Stock</p><p class="text-2xl font-bold text-white" id="stat-low">—</p></div>
+        </div>
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-green-600/20 flex items-center justify-center"><i class="fa fa-receipt text-green-400 text-xl"></i></div>
+          <div><p class="text-slate-400 text-xs mb-1">Total Bills</p><p class="text-2xl font-bold text-white" id="stat-bills">—</p></div>
+        </div>
+        <div class="card p-5 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-yellow-600/20 flex items-center justify-center"><i class="fa fa-indian-rupee-sign text-yellow-400 text-xl"></i></div>
+          <div><p class="text-slate-400 text-xs mb-1">Today Revenue</p><p class="text-2xl font-bold text-white" id="stat-revenue">—</p></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="card p-5">
+          <h3 class="font-display font-bold mb-4 text-white">⚠ Low Stock Alert</h3>
+          <div id="low-stock-list" class="space-y-2 text-sm text-slate-400">Loading...</div>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-display font-bold mb-4 text-white">📋 Recent Bills</h3>
+          <div id="recent-bills-list" class="space-y-2 text-sm text-slate-400">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── BILLING ─── -->
+    <div id="page-billing" class="page animate-in">
+      <div class="grid grid-cols-5 gap-5">
+        <!-- Left: Add items -->
+        <div class="col-span-3 space-y-4">
+          <!-- Customer -->
+          <div class="card p-5">
+            <h3 class="font-display font-bold mb-3 text-white">Customer Details</h3>
+            <div class="grid grid-cols-3 gap-3">
+              <div><label class="text-xs text-slate-400 block mb-1">Name</label><input id="cust-name" class="input-field text-sm" placeholder="Walk-in Customer"/></div>
+              <div><label class="text-xs text-slate-400 block mb-1">Phone</label><input id="cust-phone" class="input-field text-sm" placeholder="9XXXXXXXXX"/></div>
+              <div><label class="text-xs text-slate-400 block mb-1">Payment</label>
+                <select id="payment-mode" class="input-field text-sm">
+                  <option>Cash</option><option>UPI</option><option>Card</option><option>Credit</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Search product -->
+          <div class="card p-5">
+            <h3 class="font-display font-bold mb-3 text-white">Add Medicine</h3>
+            <div class="flex gap-2 mb-3">
+              <input id="bill-search" class="input-field text-sm flex-1" placeholder="Search by name, brand..." oninput="searchBillProduct()"/>
+            </div>
+            <div id="bill-search-results" class="space-y-2 max-h-52 overflow-y-auto"></div>
+          </div>
+          <!-- Cart -->
+          <div class="card p-5">
+            <h3 class="font-display font-bold mb-3 text-white">Cart Items</h3>
+            <table class="w-full text-sm">
+              <thead><tr class="text-slate-400 text-xs border-b border-slate-700">
+                <th class="pb-2 text-left">Medicine</th>
+                <th class="pb-2 text-center">Qty</th>
+                <th class="pb-2 text-center">MRP</th>
+                <th class="pb-2 text-center">Disc%</th>
+                <th class="pb-2 text-right">Total</th>
+                <th class="pb-2"></th>
+              </tr></thead>
+              <tbody id="cart-body"></tbody>
+            </table>
+            <div id="cart-empty" class="text-center text-slate-500 py-6 text-sm">No items added yet</div>
+          </div>
+        </div>
+        <!-- Right: Summary -->
+        <div class="col-span-2 space-y-4">
+          <div class="card p-5 sticky top-0">
+            <h3 class="font-display font-bold mb-4 text-white">Bill Summary</h3>
+            <div class="space-y-3 text-sm">
+              <div class="flex justify-between"><span class="text-slate-400">Subtotal</span><span id="s-subtotal">₹0.00</span></div>
+              <div class="flex justify-between items-center">
+                <span class="text-slate-400">Discount</span>
+                <div class="flex items-center gap-1">
+                  <input id="global-discount" class="input-field text-sm w-16 text-right" value="0" oninput="recalc()"/> <span class="text-slate-400 text-xs">%</span>
+                </div>
+              </div>
+              <div class="flex justify-between"><span class="text-slate-400">GST</span><span id="s-gst">₹0.00</span></div>
+              <div class="border-t border-slate-700 pt-3 flex justify-between font-bold text-lg">
+                <span class="text-white">TOTAL</span><span class="text-green-400" id="s-total">₹0.00</span>
+              </div>
+            </div>
+            <button class="btn-primary w-full mt-5 text-sm flex items-center justify-center gap-2" onclick="generateBill()">
+              <i class="fa fa-file-invoice"></i> Generate Bill
+            </button>
+            <button class="btn-secondary w-full mt-2 text-sm" onclick="clearCart()">
+              <i class="fa fa-trash mr-1"></i> Clear Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PRODUCTS ─── -->
+    <div id="page-products" class="page animate-in">
+      <div class="flex justify-between items-center mb-4">
+        <input class="input-field w-72 text-sm" placeholder="Search products..." oninput="loadProducts(this.value)" id="prod-search"/>
+        <button class="btn-primary text-sm flex items-center gap-2" onclick="openProductModal()">
+          <i class="fa fa-plus"></i> Add Product
+        </button>
+      </div>
+      <div class="card overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="border-b border-slate-700 text-slate-400 text-xs">
+            <tr>
+              <th class="px-4 py-3 text-left">#</th>
+              <th class="px-4 py-3 text-left">Name</th>
+              <th class="px-4 py-3 text-left">Brand</th>
+              <th class="px-4 py-3 text-left">Category</th>
+              <th class="px-4 py-3 text-left">Batch</th>
+              <th class="px-4 py-3 text-left">Expiry</th>
+              <th class="px-4 py-3 text-right">MRP</th>
+              <th class="px-4 py-3 text-right">Stock</th>
+              <th class="px-4 py-3 text-center">GST%</th>
+              <th class="px-4 py-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── BILLS ─── -->
+    <div id="page-bills" class="page animate-in">
+      <div class="card overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="border-b border-slate-700 text-slate-400 text-xs">
+            <tr>
+              <th class="px-4 py-3 text-left">Bill No</th>
+              <th class="px-4 py-3 text-left">Customer</th>
+              <th class="px-4 py-3 text-left">Date/Time</th>
+              <th class="px-4 py-3 text-left">Payment</th>
+              <th class="px-4 py-3 text-right">Total</th>
+              <th class="px-4 py-3 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="bills-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── STOCK ─── -->
+    <div id="page-stock" class="page animate-in">
+      <div class="flex gap-3 mb-4">
+        <input class="input-field w-72 text-sm" placeholder="Search stock..." oninput="loadStock(this.value)"/>
+        <div class="flex gap-2">
+          <button class="tab-btn active" onclick="filterStock('all',this)">All</button>
+          <button class="tab-btn" onclick="filterStock('low',this)">Low Stock</button>
+          <button class="tab-btn" onclick="filterStock('out',this)">Out of Stock</button>
+        </div>
+      </div>
+      <div class="card overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="border-b border-slate-700 text-slate-400 text-xs">
+            <tr>
+              <th class="px-4 py-3 text-left">Name</th>
+              <th class="px-4 py-3 text-left">Brand</th>
+              <th class="px-4 py-3 text-left">Batch</th>
+              <th class="px-4 py-3 text-left">Expiry</th>
+              <th class="px-4 py-3 text-right">MRP</th>
+              <th class="px-4 py-3 text-right">Stock</th>
+              <th class="px-4 py-3 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="stock-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /main content -->
+</main>
+
+<!-- ── PRODUCT MODAL ── -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal animate-in">
+    <div class="flex justify-between items-center mb-5">
+      <h2 class="font-display font-bold text-lg text-white" id="modal-title">Add Product</h2>
+      <button onclick="closeProductModal()" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-xl"></i></button>
+    </div>
+    <input type="hidden" id="edit-id"/>
+    <div class="grid grid-cols-2 gap-3 text-sm">
+      <div class="col-span-2"><label class="text-xs text-slate-400 block mb-1">Medicine Name *</label><input id="f-name" class="input-field" placeholder="e.g. Paracetamol 500mg"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Brand</label><input id="f-brand" class="input-field" placeholder="Brand name"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Category</label><input id="f-category" class="input-field" placeholder="e.g. Tablets, Syrup"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Batch No</label><input id="f-batch" class="input-field" placeholder="e.g. B001"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Expiry Date</label><input id="f-expiry" class="input-field" type="month"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">MRP (₹) *</label><input id="f-mrp" class="input-field" type="number" step="0.01" placeholder="0.00"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Purchase Price (₹)</label><input id="f-purchase" class="input-field" type="number" step="0.01" placeholder="0.00"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Stock Quantity *</label><input id="f-stock" class="input-field" type="number" placeholder="0"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">Unit</label>
+        <select id="f-unit" class="input-field"><option>Strips</option><option>Tablets</option><option>Bottles</option><option>Vials</option><option>Sachets</option><option>Capsules</option><option>Pcs</option></select>
+      </div>
+      <div><label class="text-xs text-slate-400 block mb-1">HSN Code</label><input id="f-hsn" class="input-field" placeholder="e.g. 30049099"/></div>
+      <div><label class="text-xs text-slate-400 block mb-1">GST %</label>
+        <select id="f-gst" class="input-field"><option value="0">0%</option><option value="5">5%</option><option value="12" selected>12%</option><option value="18">18%</option><option value="28">28%</option></select>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-5 justify-end">
+      <button class="btn-secondary" onclick="closeProductModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveProduct()"><i class="fa fa-save mr-1"></i> Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── BILL VIEW MODAL ── -->
+<div class="modal-overlay" id="bill-modal">
+  <div class="modal animate-in w-full max-w-2xl">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="font-display font-bold text-lg text-white">Bill Receipt</h2>
+      <div class="flex gap-2">
+        <button onclick="window.print()" class="btn-secondary text-sm"><i class="fa fa-print mr-1"></i>Print</button>
+        <button onclick="closeBillModal()" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-xl"></i></button>
+      </div>
+    </div>
+    <div id="bill-modal-content"></div>
+  </div>
+</div>
+
+<!-- PRINT AREA -->
+<div class="print-area" id="print-content"></div>
+
+<script>
+let cart = [];
+let allProducts = [];
+let stockFilter = 'all';
+
+// Clock
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + ' | ' + now.toLocaleDateString('en-IN');
+}
+setInterval(updateClock, 1000); updateClock();
+
+// Navigation
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const titles = {dashboard:'Dashboard',billing:'New Bill',products:'Products',bills:'Bill History',stock:'Stock Check'};
+  document.getElementById('page-title').textContent = titles[page];
+  event.currentTarget.classList.add('active');
+  if(page==='dashboard') loadDashboard();
+  if(page==='products') loadProducts();
+  if(page==='bills') loadBills();
+  if(page==='stock') loadStock();
+}
+
+// ── API ──
+const api = (url, opts={}) => fetch(url, {headers:{'Content-Type':'application/json'}, ...opts}).then(r=>r.json());
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  const stats = await api('/api/stats');
+  document.getElementById('stat-products').textContent = stats.total_products;
+  document.getElementById('stat-low').textContent = stats.low_stock;
+  document.getElementById('stat-bills').textContent = stats.total_bills;
+  document.getElementById('stat-revenue').textContent = '₹'+stats.today_revenue.toFixed(2);
+
+  const prods = await api('/api/products?q=');
+  const low = prods.filter(p => p.stock <= 10).slice(0,8);
+  document.getElementById('low-stock-list').innerHTML = low.length ? low.map(p =>
+    `<div class="flex justify-between items-center py-1.5 border-b border-slate-700/50">
+      <span>${p.name}</span>
+      <span class="badge ${p.stock===0?'badge-red':'badge-yellow'}">${p.stock} ${p.unit}</span>
+    </div>`).join('') : '<p class="text-green-400 text-xs">All stock levels normal ✓</p>';
+
+  const bills = await api('/api/bills');
+  const recent = bills.slice(0,6);
+  document.getElementById('recent-bills-list').innerHTML = recent.length ? recent.map(b =>
+    `<div class="flex justify-between items-center py-1.5 border-b border-slate-700/50">
+      <div><p class="text-white text-xs font-semibold">${b.bill_no}</p><p class="text-slate-500 text-xs">${b.customer_name}</p></div>
+      <span class="text-green-400 font-semibold">₹${b.total.toFixed(2)}</span>
+    </div>`).join('') : '<p class="text-slate-500 text-xs">No bills yet</p>';
+}
+
+// ── PRODUCTS ──
+async function loadProducts(q='') {
+  const prods = await api('/api/products?q='+encodeURIComponent(q));
+  allProducts = prods;
+  const tbody = document.getElementById('products-body');
+  tbody.innerHTML = prods.length ? prods.map(p => `
+    <tr class="border-b border-slate-700/50">
+      <td class="px-4 py-2.5 text-slate-500">${p.id}</td>
+      <td class="px-4 py-2.5 font-medium text-white">${p.name}</td>
+      <td class="px-4 py-2.5 text-slate-300">${p.brand||'—'}</td>
+      <td class="px-4 py-2.5 text-slate-400">${p.category||'—'}</td>
+      <td class="px-4 py-2.5 text-slate-400">${p.batch_no||'—'}</td>
+      <td class="px-4 py-2.5 text-slate-400">${p.expiry_date||'—'}</td>
+      <td class="px-4 py-2.5 text-right text-white">₹${parseFloat(p.mrp).toFixed(2)}</td>
+      <td class="px-4 py-2.5 text-right"><span class="badge ${p.stock===0?'badge-red':p.stock<=10?'badge-yellow':'badge-green'}">${p.stock} ${p.unit}</span></td>
+      <td class="px-4 py-2.5 text-center text-slate-400">${p.gst_percent}%</td>
+      <td class="px-4 py-2.5 text-center">
+        <button onclick="editProduct(${p.id})" class="btn-secondary text-xs px-2 py-1 mr-1"><i class="fa fa-pen"></i></button>
+        <button onclick="deleteProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')" class="btn-danger text-xs px-2 py-1"><i class="fa fa-trash"></i></button>
+      </td>
+    </tr>`).join('') : `<tr><td colspan="10" class="text-center py-8 text-slate-500">No products found</td></tr>`;
+}
+
+function openProductModal(p=null) {
+  document.getElementById('product-modal').classList.add('open');
+  if(!p) {
+    document.getElementById('modal-title').textContent = 'Add Product';
+    document.getElementById('edit-id').value = '';
+    ['name','brand','category','batch','expiry','mrp','purchase','stock','hsn'].forEach(f => document.getElementById('f-'+f).value = '');
+    document.getElementById('f-unit').value = 'Strips';
+    document.getElementById('f-gst').value = '12';
+  }
+}
+function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
+
+async function editProduct(id) {
+  const p = await api('/api/products/'+id);
+  document.getElementById('modal-title').textContent = 'Edit Product';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('f-name').value = p.name;
+  document.getElementById('f-brand').value = p.brand||'';
+  document.getElementById('f-category').value = p.category||'';
+  document.getElementById('f-batch').value = p.batch_no||'';
+  document.getElementById('f-expiry').value = p.expiry_date||'';
+  document.getElementById('f-mrp').value = p.mrp;
+  document.getElementById('f-purchase').value = p.purchase_price||'';
+  document.getElementById('f-stock').value = p.stock;
+  document.getElementById('f-unit').value = p.unit||'Strips';
+  document.getElementById('f-hsn').value = p.hsn_code||'';
+  document.getElementById('f-gst').value = p.gst_percent||12;
+  document.getElementById('product-modal').classList.add('open');
+}
+
+async function saveProduct() {
+  const id = document.getElementById('edit-id').value;
+  const data = {
+    name: document.getElementById('f-name').value.trim(),
+    brand: document.getElementById('f-brand').value.trim(),
+    category: document.getElementById('f-category').value.trim(),
+    batch_no: document.getElementById('f-batch').value.trim(),
+    expiry_date: document.getElementById('f-expiry').value,
+    mrp: parseFloat(document.getElementById('f-mrp').value)||0,
+    purchase_price: parseFloat(document.getElementById('f-purchase').value)||0,
+    stock: parseInt(document.getElementById('f-stock').value)||0,
+    unit: document.getElementById('f-unit').value,
+    hsn_code: document.getElementById('f-hsn').value.trim(),
+    gst_percent: parseFloat(document.getElementById('f-gst').value)
+  };
+  if(!data.name || !data.mrp) { alert('Name and MRP are required!'); return; }
+  if(id) await api('/api/products/'+id, {method:'PUT', body:JSON.stringify(data)});
+  else await api('/api/products', {method:'POST', body:JSON.stringify(data)});
+  closeProductModal();
+  loadProducts(document.getElementById('prod-search')?.value||'');
+}
+
+async function deleteProduct(id, name) {
+  if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  await api('/api/products/'+id, {method:'DELETE'});
+  loadProducts();
+}
+
+// ── BILLING ──
+async function searchBillProduct() {
+  const q = document.getElementById('bill-search').value;
+  if(q.length < 1) { document.getElementById('bill-search-results').innerHTML=''; return; }
+  const prods = await api('/api/products?q='+encodeURIComponent(q));
+  document.getElementById('bill-search-results').innerHTML = prods.length ?
+    prods.map(p => `
+      <div class="flex justify-between items-center p-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 cursor-pointer transition-all" onclick='addToCart(${JSON.stringify(p)})'>
+        <div>
+          <p class="font-medium text-white text-sm">${p.name} <span class="text-slate-400 text-xs">${p.brand||''}</span></p>
+          <p class="text-xs text-slate-500">${p.category||''} · Batch: ${p.batch_no||'N/A'} · Exp: ${p.expiry_date||'N/A'}</p>
+        </div>
+        <div class="text-right ml-3 shrink-0">
+          <p class="text-green-400 font-semibold text-sm">₹${parseFloat(p.mrp).toFixed(2)}</p>
+          <p class="text-xs ${p.stock<=0?'text-red-400':p.stock<=10?'text-yellow-400':'text-slate-400'}">${p.stock} ${p.unit}</p>
+        </div>
+      </div>`).join('')
+    : '<p class="text-slate-500 text-xs text-center py-3">No products found</p>';
+}
+
+function addToCart(p) {
+  const existing = cart.find(i => i.product_id === p.id);
+  if(existing) { existing.quantity++; }
+  else {
+    cart.push({ product_id:p.id, product_name:p.name, batch_no:p.batch_no, expiry_date:p.expiry_date,
+      mrp:parseFloat(p.mrp), quantity:1, discount:0, gst_percent:parseFloat(p.gst_percent), total:parseFloat(p.mrp), max_stock:p.stock });
+  }
+  renderCart();
+  document.getElementById('bill-search').value='';
+  document.getElementById('bill-search-results').innerHTML='';
+}
+
+function renderCart() {
+  const tbody = document.getElementById('cart-body');
+  document.getElementById('cart-empty').style.display = cart.length?'none':'block';
+  tbody.innerHTML = cart.map((item,i) => `
+    <tr class="border-b border-slate-700/50">
+      <td class="py-2 text-white">${item.product_name}<br><span class="text-xs text-slate-500">Batch: ${item.batch_no||'N/A'}</span></td>
+      <td class="py-2 text-center"><div class="flex items-center justify-center gap-1">
+        <button onclick="changeQty(${i},-1)" class="w-6 h-6 rounded bg-slate-700 text-white text-xs hover:bg-slate-600">−</button>
+        <span class="w-8 text-center">${item.quantity}</span>
+        <button onclick="changeQty(${i},1)" class="w-6 h-6 rounded bg-slate-700 text-white text-xs hover:bg-slate-600">+</button>
+      </div></td>
+      <td class="py-2 text-center">₹${item.mrp.toFixed(2)}</td>
+      <td class="py-2 text-center"><input class="input-field text-xs w-14 text-center" type="number" value="${item.discount}" min="0" max="100" oninput="setDiscount(${i},this.value)"/></td>
+      <td class="py-2 text-right font-semibold text-green-400">₹${item.total.toFixed(2)}</td>
+      <td class="py-2 text-center"><button onclick="removeFromCart(${i})" class="text-red-400 hover:text-red-300"><i class="fa fa-xmark"></i></button></td>
+    </tr>`).join('');
+  recalc();
+}
+
+function changeQty(i, d) {
+  cart[i].quantity = Math.max(1, Math.min(cart[i].quantity + d, cart[i].max_stock));
+  calcItem(i); renderCart();
+}
+function setDiscount(i, v) { cart[i].discount = Math.min(100, Math.max(0, parseFloat(v)||0)); calcItem(i); renderCart(); }
+function removeFromCart(i) { cart.splice(i,1); renderCart(); }
+function calcItem(i) {
+  const item = cart[i];
+  const discounted = item.mrp * (1 - item.discount/100);
+  item.total = discounted * item.quantity;
+}
+function clearCart() { cart=[]; renderCart(); document.getElementById('cust-name').value=''; document.getElementById('cust-phone').value=''; }
+
+function recalc() {
+  const globalDisc = parseFloat(document.getElementById('global-discount').value)||0;
+  let subtotal = 0, gstTotal = 0;
+  cart.forEach(item => {
+    const discounted = item.mrp * (1 - item.discount/100) * (1 - globalDisc/100);
+    const base = discounted * item.quantity / (1 + item.gst_percent/100);
+    subtotal += discounted * item.quantity;
+    gstTotal += (discounted * item.quantity) - base;
+  });
+  document.getElementById('s-subtotal').textContent = '₹'+subtotal.toFixed(2);
+  document.getElementById('s-gst').textContent = '₹'+gstTotal.toFixed(2);
+  document.getElementById('s-total').textContent = '₹'+subtotal.toFixed(2);
+}
+
+async function generateBill() {
+  if(!cart.length) { alert('Cart is empty!'); return; }
+  const globalDisc = parseFloat(document.getElementById('global-discount').value)||0;
+  let subtotal=0, gstAmount=0;
+  const items = cart.map(item => {
+    const discounted = item.mrp * (1 - item.discount/100) * (1 - globalDisc/100);
+    const total = discounted * item.quantity;
+    const base = total / (1 + item.gst_percent/100);
+    subtotal += total; gstAmount += total - base;
+    return {...item, total};
+  });
+  const payload = {
+    customer_name: document.getElementById('cust-name').value||'Walk-in',
+    customer_phone: document.getElementById('cust-phone').value,
+    payment_mode: document.getElementById('payment-mode').value,
+    items, subtotal, discount:globalDisc, gst_amount:gstAmount, total:subtotal
+  };
+  const res = await api('/api/bills', {method:'POST', body:JSON.stringify(payload)});
+  if(res.error) { alert('Error: '+res.error); return; }
+  const billData = await api('/api/bills/'+res.bill_id);
+  showBillModal(billData);
+  clearCart();
+}
+
+// ── BILL VIEW ──
+async function loadBills() {
+  const bills = await api('/api/bills');
+  document.getElementById('bills-body').innerHTML = bills.length ? bills.map(b => `
+    <tr class="border-b border-slate-700/50">
+      <td class="px-4 py-2.5 font-mono text-xs text-green-400">${b.bill_no}</td>
+      <td class="px-4 py-2.5 text-white">${b.customer_name||'Walk-in'}<br><span class="text-xs text-slate-500">${b.customer_phone||''}</span></td>
+      <td class="px-4 py-2.5 text-slate-400 text-xs">${new Date(b.created_at).toLocaleString('en-IN')}</td>
+      <td class="px-4 py-2.5"><span class="badge badge-green">${b.payment_mode}</span></td>
+      <td class="px-4 py-2.5 text-right font-bold text-green-400">₹${parseFloat(b.total).toFixed(2)}</td>
+      <td class="px-4 py-2.5 text-center">
+        <button onclick="viewBill(${b.id})" class="btn-secondary text-xs px-2 py-1"><i class="fa fa-eye mr-1"></i>View</button>
+      </td>
+    </tr>`).join('') : `<tr><td colspan="6" class="text-center py-8 text-slate-500">No bills yet</td></tr>`;
+}
+
+async function viewBill(id) {
+  const data = await api('/api/bills/'+id);
+  showBillModal(data);
+}
+
+function showBillModal(data) {
+  const {bill, items} = data;
+  document.getElementById('bill-modal-content').innerHTML = billHTML(bill, items);
+  document.getElementById('print-content').innerHTML = billHTML(bill, items, true);
+  document.getElementById('bill-modal').classList.add('open');
+}
+function closeBillModal() { document.getElementById('bill-modal').classList.remove('open'); }
+
+function billHTML(bill, items, print=false) {
+  const theme = print ? 'color:#000;background:#fff;' : '';
+  return `<div style="${theme}" class="${print?'':'text-sm'}">
+    <div class="text-center mb-5">
+      <h1 class="${print?'text-xl':'text-lg'} font-bold text-${print?'black':'white'} font-display">💊 MediShop Pharmacy</h1>
+      <p class="text-xs ${print?'text-gray-600':'text-slate-400'}">Medical Billing System</p>
+      <p class="text-xs ${print?'text-gray-600':'text-slate-400'}">${new Date(bill.created_at).toLocaleString('en-IN')}</p>
+      <p class="font-mono text-xs mt-1 ${print?'text-gray-800':'text-green-400'}">Bill: ${bill.bill_no}</p>
+    </div>
+    <div class="grid grid-cols-2 gap-3 mb-4 text-xs">
+      <div><strong>Customer:</strong> ${bill.customer_name||'Walk-in'}</div>
+      <div><strong>Phone:</strong> ${bill.customer_phone||'—'}</div>
+      <div><strong>Payment:</strong> ${bill.payment_mode}</div>
+    </div>
+    <table class="w-full text-xs mb-4 border-collapse">
+      <thead><tr class="border-b-2 ${print?'border-gray-400':'border-slate-600'}">
+        <th class="py-2 text-left">Medicine</th><th class="py-2 text-center">Qty</th>
+        <th class="py-2 text-right">MRP</th><th class="py-2 text-center">Disc%</th>
+        <th class="py-2 text-right">Total</th>
+      </tr></thead>
+      <tbody>${items.map(i=>`
+        <tr class="border-b ${print?'border-gray-200':'border-slate-700/50'}">
+          <td class="py-1.5">${i.product_name}<br><span class="text-gray-500">Batch: ${i.batch_no||'N/A'} Exp: ${i.expiry_date||'N/A'}</span></td>
+          <td class="py-1.5 text-center">${i.quantity}</td>
+          <td class="py-1.5 text-right">₹${parseFloat(i.mrp).toFixed(2)}</td>
+          <td class="py-1.5 text-center">${i.discount}%</td>
+          <td class="py-1.5 text-right font-semibold">₹${parseFloat(i.total).toFixed(2)}</td>
+        </tr>`).join('')}</tbody>
+    </table>
+    <div class="text-xs space-y-1 border-t ${print?'border-gray-300':'border-slate-600'} pt-3">
+      <div class="flex justify-between"><span>Subtotal</span><span>₹${parseFloat(bill.subtotal).toFixed(2)}</span></div>
+      <div class="flex justify-between"><span>GST</span><span>₹${parseFloat(bill.gst_amount).toFixed(2)}</span></div>
+      <div class="flex justify-between font-bold text-base border-t ${print?'border-gray-400':'border-slate-600'} pt-2 mt-2">
+        <span>TOTAL</span><span>₹${parseFloat(bill.total).toFixed(2)}</span>
+      </div>
+    </div>
+    <p class="text-center text-xs ${print?'text-gray-500':'text-slate-500'} mt-4">Thank you for your purchase! Get well soon 🙏</p>
+  </div>`;
+}
+
+// ── STOCK ──
+let stockData = [];
+async function loadStock(q='') {
+  stockData = await api('/api/products?q='+encodeURIComponent(q));
+  renderStock();
+}
+function filterStock(f, el) {
+  stockFilter = f;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderStock();
+}
+function renderStock() {
+  let data = stockData;
+  if(stockFilter==='low') data = data.filter(p=>p.stock>0&&p.stock<=10);
+  if(stockFilter==='out') data = data.filter(p=>p.stock===0);
+  document.getElementById('stock-body').innerHTML = data.length ? data.map(p=>`
+    <tr class="border-b border-slate-700/50">
+      <td class="px-4 py-2.5 font-medium text-white">${p.name}</td>
+      <td class="px-4 py-2.5 text-slate-300">${p.brand||'—'}</td>
+      <td class="px-4 py-2.5 text-slate-400">${p.batch_no||'—'}</td>
+      <td class="px-4 py-2.5 text-slate-400">${p.expiry_date||'—'}</td>
+      <td class="px-4 py-2.5 text-right">₹${parseFloat(p.mrp).toFixed(2)}</td>
+      <td class="px-4 py-2.5 text-right font-bold ${p.stock===0?'text-red-400':p.stock<=10?'text-yellow-400':'text-green-400'}">${p.stock} ${p.unit}</td>
+      <td class="px-4 py-2.5 text-center">
+        <span class="badge ${p.stock===0?'badge-red':p.stock<=10?'badge-yellow':'badge-green'}">
+          ${p.stock===0?'Out of Stock':p.stock<=10?'Low Stock':'In Stock'}
+        </span>
+      </td>
+    </tr>`).join('') : `<tr><td colspan="7" class="text-center py-8 text-slate-500">No products match</td></tr>`;
+}
+
+// Init
+loadDashboard();
+loadStock();
+</script>
+</body>
+</html>

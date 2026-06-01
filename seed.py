@@ -1,0 +1,58 @@
+products += [
+    ("Paracetamol Cold & Flu", "Cipla", "Tablets", "B007", "2026-10", 55, 30, 120, "Strips", "3004", 12),
+    ("Azithromycin 500mg", "Sun Pharma", "Tablets", "B008", "2026-06", 150, 90, 60, "Strips", "3003", 12),
+    ("Metformin 500mg", "USV", "Tablets", "B009", "2027-01", 40, 20, 200, "Strips", "3004", 12),
+    ("Pantoprazole 40mg", "Alkem", "Tablets", "B010", "2026-09", 85, 50, 150, "Strips", "3004", 12),
+    ("Omeprazole 20mg", "Dr Reddy's", "Capsules", "B011", "2026-11", 70, 40, 180, "Strips", "3004", 12),
+    ("Cetirizine 10mg", "Cipla", "Tablets", "B012", "2027-03", 25, 10, 300, "Strips", "3004", 12),
+    ("Levocetirizine 5mg", "Mankind", "Tablets", "B013", "2026-08", 30, 15, 250, "Strips", "3004", 12),
+    ("Montelukast 10mg", "Sun Pharma", "Tablets", "B014", "2026-12", 120, 75, 140, "Strips", "3004", 12),
+    ("Dolo 650", "Micro Labs", "Tablets", "B015", "2027-05", 35, 20, 500, "Strips", "3004", 12),
+    ("Disprin", "Reckitt", "Tablets", "B016", "2026-07", 20, 10, 400, "Strips", "3004", 12),
+
+    ("Calcium + D3", "Himalaya", "Tablets", "B017", "2027-09", 180, 110, 200, "Strips", "3004", 12),
+    ("Zincovit", "Apex", "Syrup", "B018", "2026-04", 95, 60, 80, "Bottles", "3005", 18),
+    ("Multivitamin Capsules", "Revital", "Capsules", "B019", "2027-02", 220, 150, 150, "Strips", "3004", 12),
+    ("Iron Syrup", "Meyer", "Syrup", "B020", "2026-10", 80, 45, 90, "Bottles", "3005", 18),
+    ("Glucose Powder", "GlaxoSmithKline", "Powder", "B021", "2027-06", 60, 35, 200, "Packets", "3006", 5),
+
+    ("ORS Powder Lemon", "Electral", "Sachets", "B022", "2027-11", 25, 10, 300, "Sachets", "3006", 5),
+    ("Domperidone 10mg", "Torrent", "Tablets", "B023", "2026-05", 50, 25, 180, "Strips", "3004", 12),
+    ("Ondansetron 4mg", "Intas", "Tablets", "B024", "2026-09", 90, 55, 120, "Strips", "3004", 12),
+    ("Diclofenac Gel", "Novartis", "Ointment", "B025", "2027-03", 65, 40, 100, "Tubes", "3007", 12),
+    ("Volini Spray", "Sun Pharma", "Spray", "B026", "2026-12", 120, 80, 70, "Bottles", "3007", 18),
+
+    ("Betadine Solution", "Win Medicare", "Liquid", "B027", "2027-08", 85, 55, 90, "Bottles", "3005", 18),
+    ("Clotrimazole Cream", "Cipla", "Cream", "B028", "2026-11", 60, 35, 140, "Tubes", "3007", 12),
+    ("Mupirocin Ointment", "GSK", "Ointment", "B029", "2026-07", 95, 60, 110, "Tubes", "3007", 12),
+    ("Lubricant Eye Drops", "Ajanta", "Drops", "B030", "2027-01", 70, 40, 150, "Bottles", "3005", 12),
+    ("Ciprofloxacin Eye Drops", "Alcon", "Drops", "B031", "2026-06", 110, 70, 100, "Bottles", "3005", 12),
+
+    ("Ofloxacin Tablets", "Zydus", "Tablets", "B032", "2026-10", 130, 85, 90, "Strips", "3004", 12),
+    ("Nasal Spray", "Dr Morepen", "Spray", "B033", "2027-02", 75, 45, 80, "Bottles", "3005", 12),
+    ("Saline Nasal Drops", "Himalaya", "Drops", "B034", "2027-07", 40, 20, 120, "Bottles", "3005", 12),
+    ("Human Insulin", "Novo Nordisk", "Injection", "B035", "2026-12", 450, 300, 40, "Vials", "3002", 5),
+    ("Heparin Injection", "Abbott", "Injection", "B036", "2026-09", 600, 420, 30, "Vials", "3002", 5),
+
+    ("Dextrose 5% IV", "Baxter", "Infusion", "B037", "2027-04", 120, 80, 100, "Bottles", "3002", 5),
+    ("Normal Saline", "Fresenius", "Infusion", "B038", "2027-05", 90, 60, 150, "Bottles", "3002", 5),
+    ("Vitamin B Complex", "Unichem", "Tablets", "B039", "2026-08", 55, 30, 200, "Strips", "3004", 12),
+    ("Biotin Tablets", "HealthVit", "Tablets", "B040", "2027-09", 180, 120, 90, "Strips", "3004", 12),
+    ("Protein Powder Medical", "Abbott", "Powder", "B041", "2026-11", 850, 600, 50, "Tins", "3008", 18),
+
+    ("Whey Protein Medical", "MuscleBlaze", "Powder", "B042", "2027-03", 950, 700, 60, "Tins", "3008", 18),
+    ("Anti Allergy Syrup", "Cipla", "Syrup", "B043", "2026-06", 85, 50, 100, "Bottles", "3005", 18),
+    ("Pediatric Syrup", "Mankind", "Syrup", "B044", "2027-01", 70, 40, 120, "Bottles", "3005", 18),
+    ("Antacid Liquid", "Digene", "Syrup", "B045", "2026-10", 60, 35, 200, "Bottles", "3005", 18),
+    ("Laxative Syrup", "Abbott", "Syrup", "B046", "2027-02", 95, 60, 80, "Bottles", "3005", 18),
+
+    ("Anti Diarrheal", "Zydus", "Capsules", "B047", "2026-12", 110, 70, 90, "Strips", "3004", 12),
+    ("ORS Orange Flavor", "Electral", "Sachets", "B048", "2027-06", 30, 12, 250, "Sachets", "3006", 5),
+    ("Steroid Skin Cream", "Glenmark", "Cream", "B049", "2026-09", 120, 80, 70, "Tubes", "3007", 12),
+    ("Acne Gel", "Himalaya", "Gel", "B050", "2027-04", 85, 50, 110, "Tubes", "3007", 12),
+    ("Sunscreen SPF 50", "La Roche-Posay", "Cream", "B051", "2027-08", 600, 420, 60, "Tubes", "3007", 18),
+
+    ("Burn Cream", "Silverex", "Cream", "B052", "2026-07", 95, 60, 90, "Tubes", "3007", 12),
+    ("Antifungal Powder", "Candid", "Powder", "B053", "2027-03", 70, 45, 150, "Bottles", "3007", 12),
+    ("Pain Relief Tablets", "Brufen", "Tablets", "B054", "2026-11", 50, 30, 300, "Strips", "3004", 12),
+]
